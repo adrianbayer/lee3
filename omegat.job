@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#SBATCH --qos=debug
+#SBATCH --time=30:00
+#SBATCH --nodes=4
+#SBATCH --tasks-per-node=32
+#SBATCH --constraint=haswell
+#SBATCH -o %x.o%j
+#SBATCH -J omegat 
+
+export OMP_NUM_THREADS=1
+
+module load python
+source activate fastpm-python
+
+#for dk in 0 0.5 1 2 5 10 100; do
+for dk in 200 500 1000 2000 5000; do
+
+mpirun -n 100 python periodogram_selfcalib.py --A 0 --peak_removal_df 0 --dk $dk
+mpirun -n 100 python periodogram_selfcalib.py --A 0.5 --peak_removal_df 0 --dk $dk
+mpirun -n 100 python periodogram_selfcalib.py --A 0.5 --peak_removal_df 2.5 --dk $dk
+
+done
